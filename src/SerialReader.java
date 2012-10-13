@@ -3,10 +3,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 import javax.swing.JTextArea;
 
@@ -21,6 +18,7 @@ public class SerialReader implements SerialPortEventListener {
 	private BufferedOutputStream outputStreamAcce;
 	private PrintWriter writerGyro;
 	private PrintWriter writerAcce;
+	ServerTCP server = new ServerTCP();
 	
 	private final Object lock = new Integer(0);
 	
@@ -38,28 +36,8 @@ public class SerialReader implements SerialPortEventListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		setSocket();
+		new Thread(server).start();
 	}
-	
-	
-	
-	OutputStream os;
-	ServerSocket ss;
-	private void setSocket() {
-		
-		try {
-			ss = new ServerSocket(2345);
-			//Socket s = ss.accept();
-	        //os = s.getOutputStream();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
-	}
-
-
-
 
 	public void chiudi(){
 		chiudi=true;
@@ -87,6 +65,7 @@ public class SerialReader implements SerialPortEventListener {
 			
 			if( input.available() > 0 ){
 				int len = input.read(tmp);
+				
 				//buffer = buffer + new String(tmp, 0, len);
 				/*
 				if (outputStream!=null){					
@@ -102,14 +81,17 @@ public class SerialReader implements SerialPortEventListener {
 								case 'G':
 									selezionato = writerGyro;
 									System.out.print("Giro: ");
+									server.write("Giro");
 									break;
 								case 'A':
 									selezionato = writerAcce;
 									System.out.print("Accel: ");
+									server.write("Accel");
 									break;
 								default:
 									selezionato = null;
 									System.out.print("BHO!: ");
+									server.write("BHO, BAD DATA");
 									break;
 							}
 							attuale++;
@@ -122,6 +104,7 @@ public class SerialReader implements SerialPortEventListener {
 							readLAbyte(i);
 							System.out.print(" x:"+val);
 							selezionato.print(val+" ");
+							server.write(val+" ");
 							attuale++;
 							break;
 						case 3:// MS y
@@ -132,6 +115,7 @@ public class SerialReader implements SerialPortEventListener {
 							readLAbyte(i);
 							System.out.print(" y:"+val);
 							selezionato.print(val+" ");
+							server.write(val+" ");
 							attuale++;
 							break;
 						case 5://MS z
@@ -142,7 +126,7 @@ public class SerialReader implements SerialPortEventListener {
 							readLAbyte(i);
 							System.out.print(" z:"+val);
 							selezionato.print(val+"\n");
-							System.out.println(); //vai pure a capo
+							server.write(val+"\n");
 							attuale=0;
 							break;
 					}
@@ -244,16 +228,7 @@ public class SerialReader implements SerialPortEventListener {
 			outputStreamAcce= null;
 			System.out.println("ACCE: flusso su file chiuso");
 		}
-		if (ss!=null){
-			try {
-				ss.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			ss = null;
-			System.out.println("Server: flusso su TCP chiuso");
-		}
+		server.close();
 	}
 
 }
