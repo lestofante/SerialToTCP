@@ -1,4 +1,4 @@
-import java.io.BufferedOutputStream;
+ahh chimport java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -82,8 +82,7 @@ public class SerialReader implements SerialPortEventListener {
 	@Override
 	public void serialEvent(SerialPortEvent arg0) {
 		synchronized (lock) {
-			
-		
+
 		try {
 			
 			if( input.available() > 0 ){
@@ -210,7 +209,7 @@ public class SerialReader implements SerialPortEventListener {
 		//quindi il più significativo, che sarà già stato letto, spostalo a sinistra
 		val = val << 8;
 		//copia in val i byte ad uno del byte meno significativo, completando così il dato (or logico, per evitare casini con i signed/unsigned se avessi usato +)
-		val |= tmp[i];
+		val |= tmp[i] & 0xff;
 	}
 
 
